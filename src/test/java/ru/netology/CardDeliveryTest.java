@@ -2,12 +2,11 @@ package ru.netology;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.conditions.ExactText;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.Selenide.$;
@@ -34,8 +33,7 @@ public class CardDeliveryTest {
         SelenideElement notification = $("[data-test-id=notification]");
         $("[data-test-id=notification]").waitUntil(Condition.visible, 15000);
         $("[data-test-id=notification] .notification__title").should(Condition.exactText("Успешно!"));
-        $("[data-test-id=notification] .notification__content").should(Condition.text("Встреча успешно забронирована на "));
-
+        $("[data-test-id=notification] .notification__content").should(Condition.exactText("Встреча успешно забронирована на " + getEarliestValidDate()));
     }
 
     @Test
@@ -53,7 +51,27 @@ public class CardDeliveryTest {
         SelenideElement notification = $("[data-test-id=notification]");
         $("[data-test-id=notification]").waitUntil(Condition.visible, 15000);
         $("[data-test-id=notification] .notification__title").should(Condition.exactText("Успешно!"));
-        $("[data-test-id=notification] .notification__content").should(Condition.text("Встреча успешно забронирована на "));
+        $("[data-test-id=notification] .notification__content").should(Condition.exactText("Встреча успешно забронирована на " + getLateDate(5)));
+    }
+
+    @Test
+    void shouldBeSuccessUsingPopupsThisMonth () {
+        open(getBaseUrl());
+
+        $("[data-test-id=city] input").setValue("Кра");
+        $$(".menu-item__control").findBy(Condition.exactText("Красноярск")).click();
+        $("button .icon_name_calendar").click();
+        $(".calendar__layout").waitUntil(Condition.visible, 2000);
+        long timestamp = getTimeStampString(earliestValidDate.plusDays(6));
+        $(String.format("[data-day='%d000']", timestamp)).click();
+        $("[data-test-id=name] input").setValue("Иванов Иван Иванович");
+        $("[data-test-id=phone] input").setValue("+79032596200");
+        $("[data-test-id=agreement]").click();
+        $$("button").find(Condition.exactText("Забронировать")).click();
+        SelenideElement notification = $("[data-test-id=notification]");
+        $("[data-test-id=notification]").waitUntil(Condition.visible, 15000);
+        $("[data-test-id=notification] .notification__title").should(Condition.exactText("Успешно!"));
+        $("[data-test-id=notification] .notification__content").should(Condition.exactText("Встреча успешно забронирована на " + getLateDate(6)));
     }
 
     @Test
@@ -154,6 +172,11 @@ public class CardDeliveryTest {
 
     public String getBaseUrl() {
         return baseUrl;
+    }
+
+    public long getTimeStampString(LocalDate date) {
+        ZoneId zoneId = ZoneId.systemDefault();
+        return date.atStartOfDay(zoneId).toEpochSecond();
     }
 
     public void sleepSugar(int sec) {
