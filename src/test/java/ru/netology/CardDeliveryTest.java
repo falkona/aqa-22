@@ -40,6 +40,27 @@ public class CardDeliveryTest {
 
     }
 
+    @Test
+    void shouldBeUnavailableDeliveryIfCityIsInvalid (){
+        open(getBaseUrl());
+
+        $("[data-test-id=city] input").setValue("Урюпинск");
+        sleepSugar(2);
+        $("[data-test-id=date] input").clear();
+        $("[data-test-id=date] input").setValue("07.11.2019");
+        sleepSugar(2);
+        $("[data-test-id=name] input").setValue("Дарья");
+        sleepSugar(2);
+        $("[data-test-id=phone] input").setValue("+79032596295");
+        sleepSugar(2);
+        $("[data-test-id=agreement]").click();
+        sleepSugar(2);
+        $$("button").find(Condition.exactText("Забронировать")).click();
+        sleepSugar(2);
+        $("[data-test-id=city] .input__sub").shouldBe(Condition.visible);
+        $("[data-test-id=city] .input__sub").shouldHave(Condition.exactText("Доставка в выбранный город недоступна"));
+    }
+
     public String getBaseUrl() {
         return baseUrl;
     }
