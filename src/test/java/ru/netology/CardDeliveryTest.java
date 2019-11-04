@@ -16,15 +16,17 @@ public class CardDeliveryTest {
 
     private String baseUrl = "http://localhost:9999/";
     private int minimumDaysToDelivery = 3;
-    private LocalDate earliestValidDate = LocalDate.now().plusDays(minimumDaysToDelivery);
+    //private LocalDate earliestValidDate = LocalDate.now().plusDays(minimumDaysToDelivery);
 
     @Test
     void shouldBeSuccessAllValuesSetDateIsNearest () {
         open(getBaseUrl());
 
+        String date = getFutureDate(minimumDaysToDelivery);
+
         $("[data-test-id=city] input").setValue("Волгоград");
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.DELETE);
-        $("[data-test-id=date] input").sendKeys(getEarliestValidDate());
+        $("[data-test-id=date] input").sendKeys(date);
         $("[data-test-id=name] input").setValue("Дарья");
         $("[data-test-id=phone] input").setValue("+79032596295");
         $("[data-test-id=agreement]").click();
@@ -32,16 +34,18 @@ public class CardDeliveryTest {
         SelenideElement notification = $("[data-test-id=notification]");
         $("[data-test-id=notification]").waitUntil(Condition.visible, 15000);
         $("[data-test-id=notification] .notification__title").should(Condition.exactText("Успешно!"));
-        $("[data-test-id=notification] .notification__content").should(Condition.exactText("Встреча успешно забронирована на " + getEarliestValidDate()));
+        $("[data-test-id=notification] .notification__content").should(Condition.exactText("Встреча успешно забронирована на " + date));
     }
 
     @Test
     void shouldBeSuccessAllValuesSetDateIsLater () {
         open(getBaseUrl());
 
+        String date = getFutureDate(minimumDaysToDelivery + 2);
+
         $("[data-test-id=city] input").setValue("Краснодар");
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.DELETE);
-        $("[data-test-id=date] input").sendKeys(getLateDate(5));
+        $("[data-test-id=date] input").sendKeys(date);
         $("[data-test-id=name] input").setValue("Иванов Иван Иванович");
         $("[data-test-id=phone] input").setValue("+79032596200");
         $("[data-test-id=agreement]").click();
@@ -49,18 +53,20 @@ public class CardDeliveryTest {
         SelenideElement notification = $("[data-test-id=notification]");
         $("[data-test-id=notification]").waitUntil(Condition.visible, 15000);
         $("[data-test-id=notification] .notification__title").should(Condition.exactText("Успешно!"));
-        $("[data-test-id=notification] .notification__content").should(Condition.exactText("Встреча успешно забронирована на " + getLateDate(5)));
+        $("[data-test-id=notification] .notification__content").should(Condition.exactText("Встреча успешно забронирована на " + date));
     }
 
     @Test
     void shouldBeSuccessUsingPopupsThisMonth () {
         open(getBaseUrl());
 
+        String date = getFutureDate(minimumDaysToDelivery + 3);
+
         $("[data-test-id=city] input").setValue("Кра");
         $$(".menu-item__control").findBy(Condition.exactText("Красноярск")).click();
         $("button .icon_name_calendar").click();
         $(".calendar__layout").waitUntil(Condition.visible, 2000);
-        long timestamp = getTimeStampString(earliestValidDate.plusDays(6));
+        long timestamp = getTimeStampString(LocalDate.now().plusDays(minimumDaysToDelivery + 3));
         $(String.format("[data-day='%d000']", timestamp)).click();
         $("[data-test-id=name] input").setValue("Иванов Иван Иванович");
         $("[data-test-id=phone] input").setValue("+79032596200");
@@ -69,16 +75,18 @@ public class CardDeliveryTest {
         SelenideElement notification = $("[data-test-id=notification]");
         $("[data-test-id=notification]").waitUntil(Condition.visible, 15000);
         $("[data-test-id=notification] .notification__title").should(Condition.exactText("Успешно!"));
-        $("[data-test-id=notification] .notification__content").should(Condition.exactText("Встреча успешно забронирована на " + getLateDate(6)));
+        $("[data-test-id=notification] .notification__content").should(Condition.exactText("Встреча успешно забронирована на " + date));
     }
 
     @Test
     void shouldBeUnavailableDeliveryIfCityIsInvalid (){
         open(getBaseUrl());
 
+        String date = getFutureDate(minimumDaysToDelivery + 1);
+
         $("[data-test-id=city] input").setValue("Урюпинск");
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.DELETE);
-        $("[data-test-id=date] input").setValue(getLateDate(1));
+        $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue("Дарья");
         $("[data-test-id=phone] input").setValue("+79032596295");
         $("[data-test-id=agreement]").click();
@@ -92,9 +100,11 @@ public class CardDeliveryTest {
     void shouldBeUnavailableDeliveryIfNameHasWrongSymbols (){
         open(getBaseUrl());
 
+        String date = getFutureDate(minimumDaysToDelivery + 2);
+
         $("[data-test-id=city] input").setValue("Воронеж");
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.DELETE);
-        $("[data-test-id=date] input").setValue(getLateDate(2));
+        $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue("Дарья 2");
         $("[data-test-id=phone] input").setValue("+79032596295");
         $("[data-test-id=agreement]").click();
@@ -108,9 +118,11 @@ public class CardDeliveryTest {
     void shouldBeUnavailableDeliveryIfPhoneIsTooLong (){
         open(getBaseUrl());
 
+        String date = getFutureDate(minimumDaysToDelivery + 3);
+
         $("[data-test-id=city] input").setValue("Санкт-Петербург");
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.DELETE);
-        $("[data-test-id=date] input").setValue(getLateDate(3));
+        $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue("Дарья");
         $("[data-test-id=phone] input").setValue("+790325962951");
         $("[data-test-id=agreement]").click();
@@ -124,9 +136,11 @@ public class CardDeliveryTest {
     void shouldBeUnavailableDeliveryWithoutAgreement (){
         open(getBaseUrl());
 
+        String date = getFutureDate(minimumDaysToDelivery + 4);
+
         $("[data-test-id=city] input").setValue("Ростов-На-Дону");
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.DELETE);
-        $("[data-test-id=date] input").setValue(getLateDate(4));
+        $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue("Дарья");
         $("[data-test-id=phone] input").setValue("+79032596295");
         $$("button").find(Condition.exactText("Забронировать")).click();
@@ -137,9 +151,11 @@ public class CardDeliveryTest {
     void shouldBeUnavailableDeliveryIfDateTooEarly (){
         open(getBaseUrl());
 
+        String date = getPastDate(minimumDaysToDelivery - 1);
+
         $("[data-test-id=city] input").setValue("Ростов-на-Дону");
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.DELETE);
-        $("[data-test-id=date] input").setValue(getInvalidEarlyDate(1));
+        $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue("Дарья");
         $("[data-test-id=phone] input").setValue("+79032596295");
         $("[data-test-id=agreement]").click();
@@ -149,21 +165,14 @@ public class CardDeliveryTest {
         $("[data-test-id=date] .input__sub").shouldHave(Condition.exactText("Заказ на выбранную дату невозможен"));
     }
 
-    // возвращает ближайшую возможную дату доставки
-    public String getEarliestValidDate() {
-        return String.format("%02d.%02d.%d", earliestValidDate.getDayOfMonth(), earliestValidDate.getMonthValue(), earliestValidDate.getYear());
+    String getFutureDate(int daysToAdd) {
+        LocalDate futureDate = LocalDate.now().plusDays(daysToAdd);
+        return String.format("%02d.%02d.%d", futureDate.getDayOfMonth(), futureDate.getMonthValue(), futureDate.getYear());
     }
 
-    // возвращает дату на заданное количество дней раньше минимальной допустимой даты.
-    public String getInvalidEarlyDate(long days) {
-        LocalDate earlyDate = earliestValidDate.minusDays(days);
-        return String.format("%02d.%02d.%d", earlyDate.getDayOfMonth(), earlyDate.getMonthValue(), earlyDate.getYear());
-    }
-
-    // возвращает дату на заданное количество дней позже минимальной допустимой даты.
-    public String getLateDate(long days) {
-        LocalDate lateDate = earliestValidDate.plusDays(days);
-        return String.format("%02d.%02d.%d", lateDate.getDayOfMonth(), lateDate.getMonthValue(), lateDate.getYear());
+    String getPastDate(int daysToSubstract) {
+        LocalDate pastDate = LocalDate.now().minusDays(daysToSubstract);
+        return String.format("%02d.%02d.%d", pastDate.getDayOfMonth(), pastDate.getMonthValue(), pastDate.getYear());
     }
 
     public String getBaseUrl() {
