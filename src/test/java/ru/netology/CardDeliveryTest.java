@@ -16,7 +16,6 @@ public class CardDeliveryTest {
 
     private String baseUrl = "http://localhost:9999/";
     private int minimumDaysToDelivery = 3;
-    //private LocalDate earliestValidDate = LocalDate.now().plusDays(minimumDaysToDelivery);
 
     @Test
     void shouldBeSuccessAllValuesSetDateIsNearest () {
