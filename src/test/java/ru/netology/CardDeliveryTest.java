@@ -29,7 +29,6 @@ public class CardDeliveryTest {
         $("[data-test-id=phone] input").setValue("+79032596295");
         $("[data-test-id=agreement]").click();
         $$("button").find(Condition.exactText("Забронировать")).click();
-        sleepSugar(2);
         SelenideElement notification = $("[data-test-id=notification]");
         $("[data-test-id=notification]").waitUntil(Condition.visible, 15000);
         $("[data-test-id=notification] .notification__title").should(Condition.exactText("Успешно!"));
@@ -47,7 +46,6 @@ public class CardDeliveryTest {
         $("[data-test-id=phone] input").setValue("+79032596200");
         $("[data-test-id=agreement]").click();
         $$("button").find(Condition.exactText("Забронировать")).click();
-        sleepSugar(2);
         SelenideElement notification = $("[data-test-id=notification]");
         $("[data-test-id=notification]").waitUntil(Condition.visible, 15000);
         $("[data-test-id=notification] .notification__title").should(Condition.exactText("Успешно!"));
@@ -117,7 +115,6 @@ public class CardDeliveryTest {
         $("[data-test-id=phone] input").setValue("+790325962951");
         $("[data-test-id=agreement]").click();
         $$("button").find(Condition.exactText("Забронировать")).click();
-        sleepSugar(2);
         $("[data-test-id=phone]").shouldHave(Condition.cssClass("input_invalid"));
         $("[data-test-id=phone] .input__sub").shouldBe(Condition.visible);
         $("[data-test-id=phone] .input__sub").shouldHave(Condition.exactText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
@@ -147,7 +144,6 @@ public class CardDeliveryTest {
         $("[data-test-id=phone] input").setValue("+79032596295");
         $("[data-test-id=agreement]").click();
         $$("button").find(Condition.exactText("Забронировать")).click();
-        sleepSugar(2);
         $("[data-test-id=date] .calendar-input__custom-control").shouldHave(Condition.cssClass("input_invalid"));
         $("[data-test-id=date] .input__sub").shouldBe(Condition.visible);
         $("[data-test-id=date] .input__sub").shouldHave(Condition.exactText("Заказ на выбранную дату невозможен"));
@@ -178,18 +174,4 @@ public class CardDeliveryTest {
         ZoneId zoneId = ZoneId.systemDefault();
         return date.atStartOfDay(zoneId).toEpochSecond();
     }
-
-    public void sleepSugar(int sec) {
-        try {
-            Thread.sleep(sec*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String getNearestAvailableDate () {
-        LocalDate currentDate = LocalDate.now();
-        return currentDate.toString();
-    }
-
 }
